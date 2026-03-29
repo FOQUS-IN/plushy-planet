@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Plushy Planet 🌈</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fdf6ff;min-height:100vh;}
+  .app{max-width:500px;margin:0 auto;padding:1.5rem 1rem;}
+  .screen{display:none;}.screen.active{display:block;}
+  .planet-header{text-align:center;margin-bottom:1.75rem;}
+  .planet-title{font-size:32px;font-weight:600;color:#3b1f5e;letter-spacing:-0.5px;}
+  .planet-sub{font-size:14px;color:#9b7bb5;margin-top:4px;}
+  .planet-icon{font-size:52px;display:block;margin-bottom:10px;}
+  .two-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .big-btn{padding:20px 12px;border-radius:16px;font-size:15px;font-weight:500;cursor:pointer;text-align:center;border:1.5px solid #e8d5f5;background:white;color:#3b1f5e;transition:all 0.15s;}
+  .big-btn:hover{background:#f5eeff;border-color:#c9a8e8;}
+  .big-btn-icon{font-size:30px;display:block;margin-bottom:8px;}
+  .pink-btn{width:100%;padding:14px;background:#D4537E;color:white;border:none;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;transition:opacity 0.15s;}
+  .pink-btn:disabled{opacity:0.3;cursor:not-allowed;}
+  .pink-btn:not(:disabled):hover{opacity:0.85;}
+  .prog-row{display:flex;gap:6px;margin-bottom:1.5rem;}
+  .prog-dot{flex:1;height:5px;border-radius:3px;background:#f0e0f8;transition:background 0.3s;}
+  .prog-dot.done{background:#D4537E;}
+  .q-label{font-size:12px;color:#9b7bb5;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
+  .q-text{font-size:20px;font-weight:600;color:#3b1f5e;margin-bottom:1.25rem;line-height:1.3;}
+  .mood-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem;}
+  .mood-btn{background:white;border:1.5px solid #e8d5f5;border-radius:14px;padding:16px 10px;cursor:pointer;text-align:center;transition:all 0.15s;}
+  .mood-btn:hover{background:#fdf0ff;}
+  .mood-btn.sel{border:2px solid #D4537E;background:#FBEAF0;}
+  .mood-emoji{font-size:28px;display:block;margin-bottom:6px;}
+  .mood-lbl{font-size:13px;color:#3b1f5e;font-weight:500;}
+  .mood-lbl.s{color:#72243E;}
+  .world-stage{background:linear-gradient(135deg,#fdf0ff,#e8f4ff);border-radius:20px;padding:1.5rem;margin-bottom:1rem;text-align:center;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px solid #e8d5f5;}
+  .stuffie-frame{position:relative;width:150px;height:150px;margin:0 auto 12px;}
+  .stuffie-photo{width:150px;height:150px;border-radius:50%;object-fit:cover;border:4px solid #F4C0D1;}
+  .stuffie-emoji-big{font-size:90px;line-height:1;display:block;}
+  .stuffie-emoji-big.dancing{animation:bop 0.5s infinite alternate;}
+  .stuffie-photo.dancing{animation:bop 0.5s infinite alternate;}
+  @keyframes bop{from{transform:translateY(0) rotate(-6deg);}to{transform:translateY(-16px) rotate(6deg);}}
+  .overlay-hat{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:40px;line-height:1;}
+  .overlay-neck{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:26px;line-height:1;}
+  .overlay-star{position:absolute;top:4px;right:0px;font-size:26px;}
+  .stuffie-name-big{font-size:22px;font-weight:600;color:#3b1f5e;}
+  .stuffie-type-sm{font-size:12px;color:#9b7bb5;margin-top:2px;}
+  .match-badge{display:inline-block;background:#FBEAF0;color:#72243E;font-size:12px;font-weight:600;padding:4px 14px;border-radius:20px;margin-bottom:10px;}
+  .msg-bubble{background:white;border:1.5px solid #f0deff;border-radius:14px;padding:.875rem 1.125rem;margin-bottom:1rem;font-size:14px;color:#3b1f5e;line-height:1.6;font-style:italic;}
+  .section-label{font-size:12px;color:#9b7bb5;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;}
+  .outfit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem;}
+  .outfit-card{background:white;border:1.5px solid #e8d5f5;border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;transition:all 0.15s;}
+  .outfit-card:hover{background:#fdf0ff;}
+  .outfit-card.on{border:2px solid #D4537E;background:#FBEAF0;}
+  .outfit-card-icon{font-size:24px;display:block;margin-bottom:4px;}
+  .outfit-card-lbl{font-size:11px;color:#9b7bb5;}
+  .outfit-card.on .outfit-card-lbl{color:#72243E;font-weight:600;}
+  .name-row{display:flex;gap:8px;margin-bottom:1rem;}
+  .name-row input{flex:1;padding:10px 14px;border:1.5px solid #e8d5f5;border-radius:10px;font-size:14px;color:#3b1f5e;background:white;outline:none;}
+  .name-row input:focus{border-color:#D4537E;}
+  .name-row button{padding:10px 16px;background:#D4537E;color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;}
+  .action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem;}
+  .act-btn{padding:12px;background:white;border:1.5px solid #e8d5f5;border-radius:12px;font-size:13px;color:#3b1f5e;font-weight:500;cursor:pointer;transition:all 0.15s;}
+  .act-btn:hover{background:#fdf0ff;}
+  .ghost-btn{width:100%;padding:11px;background:transparent;border:1.5px solid #e8d5f5;border-radius:12px;font-size:13px;color:#9b7bb5;cursor:pointer;margin-top:4px;}
+  .ghost-btn:hover{background:#fdf0ff;}
+  .upload-zone{border:2px dashed #e0c8f5;border-radius:16px;padding:2rem 1rem;text-align:center;cursor:pointer;margin-bottom:1rem;transition:background 0.15s;background:white;}
+  .upload-zone:hover{background:#fdf0ff;}
+  .upload-icon{font-size:40px;display:block;margin-bottom:8px;}
+  .upload-text{font-size:15px;color:#3b1f5e;font-weight:600;}
+  .upload-sub{font-size:13px;color:#9b7bb5;margin-top:4px;}
+  #file-input{display:none;}
+  .preview-img{width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid #F4C0D1;display:block;margin:0 auto 14px;}
+  .intro-card{background:white;border-radius:16px;padding:1.25rem;margin-bottom:1.5rem;border:1.5px solid #e8d5f5;}
+  .intro-card p{font-size:15px;color:#3b1f5e;line-height:1.65;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="screen active" id="s-welcome">
+    <div class="planet-header">
+      <span class="planet-icon">🌈</span>
+      <div class="planet-title">Plushy Planet</div>
+      <div class="planet-sub">Your stuffies live here — inside your screen!</div>
+    </div>
+    <div class="intro-card">
+      <p>Tell us how you are feeling today and find your perfect stuffie best friend — or bring your own stuffie to life by uploading a photo!</p>
+    </div>
+    <div class="two-btn-row">
+      <button class="big-btn" onclick="showScreen('s-photo')">
+        <span class="big-btn-icon">📸</span>
+        Upload my stuffie's photo
+      </button>
+      <button class="big-btn" onclick="showScreen('s-quiz')">
+        <span class="big-btn-icon">✨</span>
+        Find my stuffie with the quiz
+      </button>
+    </div>
+    <p style="text-align:center;font-size:13px;color:#9b7bb5;margin-top:8px;">You can do both!</p>
+  </div>
+
+  <div class="screen" id="s-photo">
+    <div style="margin-bottom:1.25rem;">
+      <div style="font-size:20px;font-weight:600;color:#3b1f5e;margin-bottom:4px;">Upload your stuffie</div>
+      <div style="font-size:13px;color:#9b7bb5;">Bring your real stuffie into Plushy Planet!</div>
+    </div>
+    <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+      <span class="upload-icon">📷</span>
+      <div class="upload-text">Tap to choose a photo</div>
+      <div class="upload-sub">Pick a photo of your stuffie from your camera roll</div>
+    </div>
+    <input type="file" id="file-input" accept="image/*" onchange="handlePhoto(event)"/>
+    <div id="photo-preview" style="display:none;text-align:center;margin-bottom:1rem;">
+      <img id="preview-img" class="preview-img" src="" alt="your stuffie"/>
+      <div style="font-size:14px;color:#3b1f5e;font-weight:500;margin-bottom:12px;">Looking great! What is this stuffie's name?</div>
+      <div class="name-row" style="max-width:280px;margin:0 auto 12px;">
+        <input type="text" id="photo-name-input" placeholder="Name your stuffie..." maxlength="20"/>
+        <button onclick="launchWithPhoto()">Go!</button>
+      </div>
+    </div>
+    <button class="ghost-btn" onclick="showScreen('s-welcome')">Back</button>
+  </div>
+
+  <div class="screen" id="s-quiz">
+    <div class="prog-row" id="prog"></div>
+    <div class="q-label" id="ql"></div>
+    <div class="q-text" id="qt"></div>
+    <div class="mood-grid" id="qo"></div>
+    <button class="pink-btn" id="qnext" disabled onclick="nextQ()">Next</button>
+  </div>
+
+  <div class="screen" id="s-world">
+    <div class="world-stage">
+      <div class="stuffie-frame" id="stuffie-frame">
+        <span class="stuffie-emoji-big" id="stuffie-emoji">🧸</span>
+        <span class="overlay-hat" id="ov-hat" style="display:none"></span>
+        <span class="overlay-neck" id="ov-neck" style="display:none"></span>
+        <span class="overlay-star" id="ov-star" style="display:none"></span>
+      </div>
+      <div class="stuffie-name-big" id="sname">Bumbly</div>
+      <div class="stuffie-type-sm" id="stype"></div>
+    </div>
+    <div class="match-badge" id="mbadge"></div>
+    <div class="msg-bubble" id="smsg"></div>
+    <div class="section-label">Dress your stuffie — see what they are wearing!</div>
+    <div class="outfit-grid" id="outfit-grid"></div>
+    <div class="name-row">
+      <input type="text" id="rename-input" placeholder="Rename your stuffie..." maxlength="20"/>
+      <button onclick="rename()">Save name</button>
+    </div>
+    <div class="action-row">
+      <button class="act-btn" id="dance-btn" onclick="toggleDance()">Make them dance</button>
+      <button class="act-btn" onclick="sendHug()">Send a hug</button>
+    </div>
+    <button class="ghost-btn" onclick="showScreen('s-welcome')" style="margin-bottom:6px;">Back to planet home</button>
+  </div>
+
+</div>
+<script>
+const questions=[
+  {label:"Mood check 1 of 3",text:"How are you feeling right now?",options:[
+    {emoji:"😄",label:"Super happy",tags:["happy","silly"]},
+    {emoji:"😌",label:"Cozy and calm",tags:["calm","cozy"]},
+    {emoji:"🌟",label:"Excited and bouncy",tags:["excited","happy"]},
+    {emoji:"🥰",label:"Warm and loved",tags:["gentle","calm"]}
+  ]},
+  {label:"Mood check 2 of 3",text:"What sounds most fun right now?",options:[
+    {emoji:"🎉",label:"A big silly party",tags:["silly","excited"]},
+    {emoji:"📖",label:"A cozy story time",tags:["calm","cozy"]},
+    {emoji:"🌈",label:"Something magical",tags:["magical","happy"]},
+    {emoji:"🤗",label:"The biggest cuddle",tags:["gentle","cozy"]}
+  ]},
+  {label:"Mood check 3 of 3",text:"Pick your perfect afternoon",options:[
+    {emoji:"🎨",label:"Making something fun",tags:["excited","silly"]},
+    {emoji:"☁️",label:"Cloud watching quietly",tags:["calm","cozy"]},
+    {emoji:"✨",label:"A magical adventure",tags:["magical","excited"]},
+    {emoji:"🧸",label:"Hugging all my stuffies",tags:["gentle","happy"]}
+  ]}
+];
+
+const stuffies=[
+  {emoji:"🐻",name:"Bumbly",type:"Chubby brown bear",tags:["happy","silly","excited"],
+   outfits:[
+     {icon:"🎩",label:"Top hat",hat:"🎩",neck:null,star:null},
+     {icon:"🌸",label:"Flower crown",hat:"🌸",neck:null,star:null},
+     {icon:"🧣",label:"Rainbow scarf",hat:null,neck:"🧣",star:null},
+     {icon:"⭐",label:"Gold star",hat:null,neck:null,star:"⭐"},
+     {icon:"👑",label:"Princess crown",hat:"👑",neck:null,star:null},
+     {icon:"🎀",label:"Bow tie",hat:null,neck:"🎀",star:null}
+   ],
+   msgs:["I have been waiting for YOU! You are my favorite human ever!","Guess what? I saved you the best spot right here next to me!","I knew someone super awesome was coming today!"]},
+  {emoji:"🦄",name:"Sparkle",type:"Silver unicorn",tags:["magical","happy","excited"],
+   outfits:[
+     {icon:"⭐",label:"Star crown",hat:"⭐",neck:null,star:null},
+     {icon:"🌙",label:"Moon charm",hat:null,neck:null,star:"🌙"},
+     {icon:"💎",label:"Diamond scarf",hat:null,neck:"💎",star:null},
+     {icon:"🎩",label:"Magic hat",hat:"🎩",neck:null,star:null},
+     {icon:"🌈",label:"Rainbow bow",hat:"🌈",neck:null,star:null},
+     {icon:"✨",label:"Sparkle badge",hat:null,neck:null,star:"✨"}
+   ],
+   msgs:["I flew across three rainbows to find you today!","Together we can make the most magical adventures!","My horn glows extra bright whenever you are near!"]},
+  {emoji:"🐰",name:"Mochi",type:"Fluffy white bunny",tags:["gentle","calm","cozy"],
+   outfits:[
+     {icon:"🌸",label:"Flower crown",hat:"🌸",neck:null,star:null},
+     {icon:"🧣",label:"Soft scarf",hat:null,neck:"🧣",star:null},
+     {icon:"🎀",label:"Cute bow",hat:"🎀",neck:null,star:null},
+     {icon:"💐",label:"Daisy chain",hat:"💐",neck:null,star:null},
+     {icon:"🌟",label:"Cozy star",hat:null,neck:null,star:"🌟"},
+     {icon:"🎩",label:"Little hat",hat:"🎩",neck:null,star:null}
+   ],
+   msgs:["I am SO soft and I am all yours for cuddles!","Can we just sit together and be cozy? That is my favorite.","You seem like exactly the kind of person who gives the best hugs."]},
+  {emoji:"🐼",name:"Bamboo",type:"Round little panda",tags:["calm","cozy","gentle"],
+   outfits:[
+     {icon:"🎋",label:"Bamboo hat",hat:"🎋",neck:null,star:null},
+     {icon:"🧣",label:"Cozy hoodie",hat:null,neck:"🧣",star:null},
+     {icon:"😴",label:"Sleep mask",hat:"😴",neck:null,star:null},
+     {icon:"🌿",label:"Leaf crown",hat:"🌿",neck:null,star:null},
+     {icon:"⭐",label:"Gold star",hat:null,neck:null,star:"⭐"},
+     {icon:"🎀",label:"Panda bow",hat:"🎀",neck:null,star:null}
+   ],
+   msgs:["Want to be cozy together? I am very good at cozy.","I saved us both a warm spot. Come sit with me!","You are my most favorite calm and wonderful friend."]},
+  {emoji:"🐱",name:"Cosmo",type:"Purple space cat",tags:["magical","silly","excited"],
+   outfits:[
+     {icon:"🚀",label:"Rocket badge",hat:null,neck:null,star:"🚀"},
+     {icon:"🌙",label:"Moon hat",hat:"🌙",neck:null,star:null},
+     {icon:"🌟",label:"Star glasses",hat:null,neck:null,star:"🌟"},
+     {icon:"🧣",label:"Galaxy scarf",hat:null,neck:"🧣",star:null},
+     {icon:"👑",label:"Space crown",hat:"👑",neck:null,star:null},
+     {icon:"✨",label:"Shimmer star",hat:null,neck:null,star:"✨"}
+   ],
+   msgs:["I just beamed down from the moon especially for you!","We are going on a space adventure! Ready? 3... 2... 1...","I have visited 12 planets and none of them had anyone as cool as you!"]}
+];
+
+let curQ=0,answers=[],selQ=null,isDancing=false,currentStuffie=null,wornOutfits={},photoMode=false,photoSrc=null;
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(id==='s-quiz'){curQ=0;answers=[];selQ=null;loadQ();}
+}
+
+function handlePhoto(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    photoSrc=ev.target.result;
+    document.getElementById('preview-img').src=photoSrc;
+    document.getElementById('photo-preview').style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function launchWithPhoto(){
+  const name=document.getElementById('photo-name-input').value.trim()||'My Stuffie';
+  photoMode=true;
+  currentStuffie={emoji:null,name:name,type:'My real stuffie',outfits:stuffies[0].outfits,
+    msgs:["Yay! I am so happy to be in Plushy Planet!","You picked ME! I am the luckiest stuffie ever!","I love my new magical home inside your screen!"]};
+  wornOutfits={};isDancing=false;
+  buildWorldScreen(name,'My real stuffie','You brought me here! This is the best day ever!');
+  const frame=document.getElementById('stuffie-frame');
+  frame.innerHTML='';
+  const img=document.createElement('img');
+  img.src=photoSrc;img.className='stuffie-photo';img.id='stuffie-photo-el';
+  const hat=document.createElement('span');hat.id='ov-hat';hat.className='overlay-hat';hat.style.display='none';
+  const neck=document.createElement('span');neck.id='ov-neck';neck.className='overlay-neck';neck.style.display='none';
+  const star=document.createElement('span');star.id='ov-star';star.className='overlay-star';star.style.display='none';
+  frame.appendChild(img);frame.appendChild(hat);frame.appendChild(neck);frame.appendChild(star);
+  document.getElementById('mbadge').textContent='Your real stuffie is here!';
+  showScreen('s-world');
+}
+
+function loadQ(){
+  const q=questions[curQ];
+  document.getElementById('ql').textContent=q.label;
+  document.getElementById('qt').textContent=q.text;
+  selQ=null;
+  document.getElementById('qnext').disabled=true;
+  document.getElementById('prog').innerHTML=questions.map((_,i)=>`<div class="prog-dot ${i<curQ?'done':''}"></div>`).join('');
+  document.getElementById('qo').innerHTML=q.options.map((o,i)=>`
+    <button class="mood-btn" onclick="pickMood(${i})">
+      <span class="mood-emoji">${o.emoji}</span>
+      <span class="mood-lbl">${o.label}</span>
+    </button>`).join('');
+}
+
+function pickMood(i){
+  selQ=i;
+  document.querySelectorAll('.mood-btn').forEach((b,idx)=>{
+    b.classList.toggle('sel',idx===i);
+    b.querySelector('.mood-lbl').className='mood-lbl'+(idx===i?' s':'');
+  });
+  document.getElementById('qnext').disabled=false;
+}
+
+function nextQ(){
+  if(selQ===null)return;
+  answers.push(questions[curQ].options[selQ].tags);
+  if(curQ<questions.length-1){curQ++;loadQ();}
+  else showQuizResult();
+}
+
+function showQuizResult(){
+  const counts={};
+  answers.flat().forEach(t=>counts[t]=(counts[t]||0)+1);
+  const scored=stuffies.map(s=>({...s,score:s.tags.reduce((n,t)=>n+(counts[t]||0),0)}));
+  scored.sort((a,b)=>b.score-a.score||(Math.random()-0.5));
+  currentStuffie=scored[0];
+  wornOutfits={};isDancing=false;photoMode=false;
+  const frame=document.getElementById('stuffie-frame');
+  frame.innerHTML=`<span class="stuffie-emoji-big" id="stuffie-emoji">${currentStuffie.emoji}</span><span class="overlay-hat" id="ov-hat" style="display:none"></span><span class="overlay-neck" id="ov-neck" style="display:none"></span><span class="overlay-star" id="ov-star" style="display:none"></span>`;
+  buildWorldScreen(currentStuffie.name,currentStuffie.type,currentStuffie.msgs[0]);
+  document.getElementById('mbadge').textContent='Your mood match: '+currentStuffie.name;
+  showScreen('s-world');
+}
+
+function buildWorldScreen(name,type,msg){
+  document.getElementById('sname').textContent=name;
+  document.getElementById('stype').textContent=type;
+  document.getElementById('smsg').textContent=msg;
+  document.getElementById('rename-input').value='';
+  document.getElementById('dance-btn').textContent='Make them dance';
+  document.getElementById('outfit-grid').innerHTML=currentStuffie.outfits.map((o,i)=>`
+    <div class="outfit-card" id="oc-${i}" onclick="toggleOutfit(${i})">
+      <span class="outfit-card-icon">${o.icon}</span>
+      <div class="outfit-card-lbl">${o.label}</div>
+    </div>`).join('');
+}
+
+function toggleOutfit(i){
+  const o=currentStuffie.outfits[i];
+  const card=document.getElementById('oc-'+i);
+  const isOn=card.classList.contains('on');
+  if(isOn){
+    card.classList.remove('on');
+    if(o.hat)wornOutfits.hat=null;
+    if(o.neck)wornOutfits.neck=null;
+    if(o.star)wornOutfits.star=null;
+  } else {
+    if(o.hat){currentStuffie.outfits.forEach((_,j)=>{if(j!==i&&currentStuffie.outfits[j].hat)document.getElementById('oc-'+j)?.classList.remove('on');});wornOutfits.hat=o.hat;}
+    if(o.neck){currentStuffie.outfits.forEach((_,j)=>{if(j!==i&&currentStuffie.outfits[j].neck)document.getElementById('oc-'+j)?.classList.remove('on');});wornOutfits.neck=o.neck;}
+    if(o.star){currentStuffie.outfits.forEach((_,j)=>{if(j!==i&&currentStuffie.outfits[j].star)document.getElementById('oc-'+j)?.classList.remove('on');});wornOutfits.star=o.star;}
+    card.classList.add('on');
+  }
+  renderOutfits();
+}
+
+function renderOutfits(){
+  const hat=document.getElementById('ov-hat');
+  const neck=document.getElementById('ov-neck');
+  const star=document.getElementById('ov-star');
+  if(hat){hat.textContent=wornOutfits.hat||'';hat.style.display=wornOutfits.hat?'block':'none';}
+  if(neck){neck.textContent=wornOutfits.neck||'';neck.style.display=wornOutfits.neck?'block':'none';}
+  if(star){star.textContent=wornOutfits.star||'';star.style.display=wornOutfits.star?'block':'none';}
+}
+
+function rename(){
+  const v=document.getElementById('rename-input').value.trim();
+  if(v)document.getElementById('sname').textContent=v;
+}
+
+function toggleDance(){
+  isDancing=!isDancing;
+  const el=document.getElementById('stuffie-emoji')||document.getElementById('stuffie-photo-el');
+  if(el){
+    const base=el.tagName==='IMG'?'stuffie-photo':'stuffie-emoji-big';
+    el.className=base+(isDancing?' dancing':'');
+  }
+  document.getElementById('dance-btn').textContent=isDancing?'Stop dancing':'Make them dance';
+}
+
+function sendHug(){
+  if(!currentStuffie)return;
+  const msgs=currentStuffie.msgs;
+  const cur=document.getElementById('smsg').textContent;
+  const idx=(msgs.indexOf(cur)+1)%msgs.length;
+  document.getElementById('smsg').textContent=msgs[idx];
+}
+</script>
+</body>
+</html>
